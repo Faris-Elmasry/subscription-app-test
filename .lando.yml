@@ -1,0 +1,44 @@
+name: subscription-test
+
+recipe: laravel
+
+excludes:
+  - vendor
+  - node_modules
+
+config:
+  webroot: public
+  via: nginx
+  php: "8.3"
+  cache: redis
+  database: mysql
+
+proxy:
+  appserver_nginx:
+    - subscription-test.lndo.site
+    - "*.subscription-test.lndo.site"
+  pma:
+    - pma.subscription-test.lndo.site
+
+services:
+  node:
+    type: node:20
+    build:
+      - npm install
+      - npm run build
+  appserver:
+    build:
+      - '[ ! -f ".env" ] && cp .env.example .env || echo ".env already present"'
+      - composer update
+      - php artisan key:generate
+      - php artisan migrate:fresh --seed
+    overrides:
+      depends_on:
+        - database
+  pma:
+    type: phpmyadmin
+    config:
+      database: database # This must match your DB service name exactly
+tooling:
+  npm:
+    service: node
