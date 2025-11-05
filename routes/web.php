@@ -3,25 +3,33 @@
 use Livewire\Volt\Volt;
 use Illuminate\Support\Facades\Route;
 
-
-// Users will be redirected to this route if not logged in
+// Public routes
 Volt::route('/login', 'login')->name('login');
 Volt::route('/register', 'register');
 
-// Define the logout
+// ADD THIS LINE - Flexible pricing page
+Volt::route('/pricing', 'pricing')->name('pricing');
+
+// Logout
 Route::get('/logout', function () {
     auth()->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
-
     return redirect('/');
 });
 
-// Protected routes here
+// Checkout routes - protected by auth
+
+Route::middleware('auth')->group(function () {
+    Volt::route('/checkout/{plan}', 'checkout')->name('checkout');
+    Volt::route('/checkout/success', 'checkout-success')->name('checkout.success'); // ✅ Volt
+    Volt::route('/checkout/cancel', 'checkout-cancel')->name('checkout.cancel');
+});
+
+// Protected routes
 Route::middleware('auth')->group(function () {
     Volt::route('/', 'index');
     Volt::route('/users', 'users.index');
     Volt::route('/users/create', 'users.create');
     Volt::route('/users/{user}/edit', 'users.edit');
-    // ... more
 });

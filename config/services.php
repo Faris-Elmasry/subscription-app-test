@@ -14,6 +14,12 @@ return [
     |
     */
 
+    // stripe configuration
+    'stripe' => [
+    'secret' => env('STRIPE_SECRET'),
+],
+
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

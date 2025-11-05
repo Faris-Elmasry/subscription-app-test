@@ -59,8 +59,7 @@ new
             return redirect('/register');
         }
 
-        // Later: redirect to checkout with plan
-        session()->flash('success', 'Redirecting to checkout for ' . $planName . ' plan...');
+        return redirect()->route('checkout', ['plan' => strtolower($planName)]);
     }
 } ?>
 
@@ -78,7 +77,7 @@ new
         <div class="flex flex-col md:flex-row gap-8 justify-center">
             @foreach($plans as $plan)
                 <x-card class="w-full md:w-1/3 hover:shadow-xl transition
-                        {{ $plan['popular'] ? 'border-2 border-primary scale-105' : '' }}">
+                                {{ $plan['popular'] ? 'border-2 border-primary scale-105' : '' }}">
                     @if($plan['popular'])
                         <x-badge value="POPULAR" class="badge-primary mb-4" />
                     @endif
