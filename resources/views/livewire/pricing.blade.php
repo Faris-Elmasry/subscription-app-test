@@ -17,6 +17,7 @@ new
 
     public function mount()
     {
+        return redirect()->route('index');
         $items = config('pricing.items');
 
         // Initialize quantities with included amounts

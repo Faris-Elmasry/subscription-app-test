@@ -7,6 +7,11 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
+     * The event listener mappings for the application.
+     */
+    protected $listen = [];
+
+    /**
      * Register any application services.
      */
     public function register(): void

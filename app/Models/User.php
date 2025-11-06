@@ -2,34 +2,43 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, Billable;
+
     /**
-     * The attributes that aren't mass assignable.
+     * Mass assignable attributes.
      *
-     * @var array<string>|bool
+     * Using guarded = ['id'] allows all fields except id to be fillable.
      */
     protected $guarded = ['id'];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * Hidden attributes (for security).
      */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * Attribute type casting.
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    /**
+     * Relationships
+     */
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
@@ -41,15 +50,36 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Subscription Helpers (Cashier)
      */
-    protected function casts(): array
+
+    // Check if user has an active subscription
+    public function hasActiveSubscription(): bool
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->subscribed('default');
+    }
+
+    // Check if user is on a specific plan (basic, pro, premium, etc.)
+    public function isOnPlan(string $plan): bool
+    {
+        return $this->plan === $plan && $this->hasActiveSubscription();
+    }
+
+    // Get the current plan name assigned in database
+    public function getCurrentPlan(): ?string
+    {
+        return $this->plan;
+    }
+
+    // Check if user subscription is in grace period
+    public function isOnGracePeriod(): bool
+    {
+        return $this->subscription('default')?->onGracePeriod() ?? false;
+    }
+
+    // The date subscription access ends if canceled
+    public function subscriptionEndsAt(): ?\Carbon\Carbon
+    {
+        return $this->subscription('default')?->ends_at;
     }
 }

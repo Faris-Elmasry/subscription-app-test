@@ -18,6 +18,7 @@ Route::get('/logout', function () {
     return redirect('/');
 });
 
+
 // Checkout routes - protected by auth
 
 Route::middleware('auth')->group(function () {
@@ -28,7 +29,7 @@ Route::middleware('auth')->group(function () {
 
 // Protected routes
 Route::middleware('auth')->group(function () {
-    Volt::route('/', 'index');
+    Volt::route('/', 'index')->name('index');
     Volt::route('/users', 'users.index');
     Volt::route('/users/create', 'users.create');
     Volt::route('/users/{user}/edit', 'users.edit');
